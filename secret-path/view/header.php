@@ -6,6 +6,6 @@
 </head>
 <body>
 <?php 
-include_once $_SERVER['DOCUMENT_ROOT'].'/secret-path/data-model.inc.php';
+//include_once $_SERVER['DOCUMENT_ROOT'].'/secret-path/data-model.inc.php';
 include_once $_SERVER['DOCUMENT_ROOT'].'/secret-path/functions.inc.php';
  ?>	
