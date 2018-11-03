@@ -1,20 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>I`m working!!!</title>	
-	<link rel="stylesheet" href="">
-</head>
-<body>
 <?php 
-include_once( $_SERVER['DOCUMENT_ROOT'].'/secret-path/functions.inc.php');
-if ($_POST['send-email']==1)
+if ($_GET['send-email']==1)
 {
-	header('Location: .');
+	header('Location: .');	
 }
+include_once( $_SERVER['DOCUMENT_ROOT'].'/secret-path/functions.inc.php');
  /* Super method send mail and log it in DB  SendMail($recieverEmail, $senderName, $senderEmail, $senderPhone, $senderText) */
- if ($_POST['send-email']==1)
+ if ($_GET['send-email']==1)
  { 	
 	  if ($_POST['client-name']!='' and $_POST['email']!='' and $_POST['phone']!='' and $_POST['details']!='')
 	 {	 	
@@ -28,15 +19,22 @@ if ($_POST['send-email']==1)
 	 	}
 	 }	
  }
-var_dump($SendMailInsertError);
-var_dump($SendMail);
  ?>	
-<form action="" method="post">
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>I`m working!!!</title>	
+	<link rel="stylesheet" href="">
+</head>
+<body>
+<form action="?send-email=1" method="post">
 	<input type="text" name="client-name" placeholder="введіть ім'я"><br>
 	<input type="phone" name="phone" placeholder="введіть телефон"><br>
 	<input type="email" name="email" placeholder="введіть адресу пошти"><br>
 	<textarea name="details" cols="30" rows="10"></textarea><br>
-	<button name="send-email" value="1">Відправити</button>
+	<button>Відправити</button>
 	<button type="reset">Скасувати</button>
 </form>
 

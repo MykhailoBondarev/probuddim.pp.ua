@@ -8,8 +8,9 @@
 	if ($_SESSION['ObjectListError']!=''){echo $_SESSION['ObjectListError'].'<br>';}	
 	if ($_SESSION['UserChangePassError']!=''){echo $_SESSION['UserChangePassError'].'<br>';}	
 	if ($_SESSION['CountObjectsError']!=''){echo $_SESSION['CountObjectsError'].'<br>';}
-	if ($_SESSION['SendMailInsertError']!=''){echo $_SESSION['SendMailInsertError'].'<br>';}
-
+	if ($_SESSION['OnlyLatOnumError']!=''){echo $_SESSION['OnlyLatOnumError'].'<br>';}
+	if ($_SESSION['OnlyNumError']!=''){echo $_SESSION['OnlyNumError'].'<br>';}
+	
 	if($_GET['userslist']==1)
 	{
 		include $_SERVER['DOCUMENT_ROOT'].'/secret-path/view/userslist.php';

@@ -4,12 +4,29 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/secret-path/data-model.inc.php';
 
 function OnlyLatOnum($str)
 {
+	if(preg_match('[^a-zA-Z0-9]', $str))
+	{
+		unset($_SESSION['OnlyLatOnumError']);
+		return $str;
+	}
+	else
+	{
+		$_SESSION['OnlyLatOnumError']='Дозволені лише латинські літери та цифри!';
+	}
 
 }
 
 function OnlyNum($str)
 {
-
+	if(preg_match('[^0-9]', $str))
+	{
+		unset($_SESSION['OnlyNumError']);
+		return $str;
+	}
+	else
+	{
+		$_SESSION['OnlyNumError']='Дозволені лише цифри!';
+	}
 }
 
  function LogOut()
