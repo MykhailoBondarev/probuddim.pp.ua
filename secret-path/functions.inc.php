@@ -2,30 +2,39 @@
 
 include_once $_SERVER['DOCUMENT_ROOT'].'/secret-path/data-model.inc.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require $_SERVER['DOCUMENT_ROOT'].'/secret-path/phpmailer/src/Exception.php';
+require $_SERVER['DOCUMENT_ROOT'].'/secret-path/phpmailer/src/PHPMailer.php';
+require $_SERVER['DOCUMENT_ROOT'].'/secret-path/phpmailer/src/SMTP.php';
+
 function OnlyLatOnum($str)
 {
-	if(preg_match('[^a-zA-Z0-9]', $str))
+	if(preg_match('/^[a-zA-Z][a-z0-9]*$/', $str))
 	{
 		unset($_SESSION['OnlyLatOnumError']);
-		return $str;
+		return true;
 	}
 	else
 	{
 		$_SESSION['OnlyLatOnumError']='Дозволені лише латинські літери та цифри!';
+		return false;
 	}
 
 }
 
 function OnlyNum($str)
 {
-	if(preg_match('[^0-9]', $str))
+	if(preg_match('/^[0-9]*$/', $str))
 	{
 		unset($_SESSION['OnlyNumError']);
-		return $str;
+		return true;
 	}
 	else
 	{
 		$_SESSION['OnlyNumError']='Дозволені лише цифри!';
+		return false;
 	}
 }
 
@@ -69,6 +78,7 @@ function OnlyNum($str)
 				$Login_update_exp -> bindValue(':session_id', $_SESSION['id']);
 				$Login_update_exp -> bindValue(':user_id', $LoginResultArr[0]);
 				$Login_update_exp -> execute();
+				unset($_SESSION['loginError']);
 			}
 			catch(PDOException $e)
 			{
@@ -81,8 +91,8 @@ function OnlyNum($str)
 		        {       	
 		        	LogOut();
 		        }
-		            $_SESSION['loginError'] = 'Невірний логін або пароль';		         
-		            return $_SESSION['loginError'];		                       	   		        	       
+		            $_SESSION['loginError'] = 'Невірний логін або пароль';    
+		                                  	   		        	       
 		    }		
  	}
  	catch(PDOException $e)
@@ -104,8 +114,25 @@ function ObjectList($objectType)
  	}
  	catch (PDOException $e)
  	{
- 		$_SESSION['ObjectListError'] = 'Сталася помилка при виконанні запиту '. $e -> getMessage();
- 		return $_SESSION['ObjectListError']; 		
+ 		$GLOBALS['ObjectListError'] = 'Сталася помилка при виконанні запиту '. $e -> getMessage();
+ 		return $GLOBALS['ObjectListError']; 		
+ 	}
+ }
+
+ function ObjectListPag($objectType, $start, $limit)
+ {
+ 	try 
+ 	{
+ 		$ObjectList_sql_str = 'SELECT * FROM '.$objectType.' LIMIT '.$start.', '.$limit;
+ 		$ObjectList_select_exp = $GLOBALS['pdo'] -> prepare($ObjectList_sql_str);
+ 		$ObjectList_select_exp -> execute();
+ 		$ObjectListResultArr = $ObjectList_select_exp -> fetchAll();
+ 		return $ObjectListResultArr;
+ 	}
+ 	catch (PDOException $e)
+ 	{
+ 		$GLOBALS['ObjectListError'] = 'Сталася помилка при виконанні запиту '. $e -> getMessage();
+ 		return $GLOBALS['ObjectListError']; 		
  	}
  }
 
@@ -142,12 +169,15 @@ function SelectObject($objectType, $objectId)
  		$AddUser_insert_exp -> bindValue(':avatar', $avatar);
  		$AddUser_insert_exp -> execute();
  		CountObjects('users');
- 		return $_GLOBALS['AddUser']=true;
+ 		return $GLOBALS['AddUser']=true;
  	}
  	catch (PDOException $e)
  	{
- 		$_SESSION['UserAddError'] = 'Сталася помилка при виконанні запиту '. $e -> getMessage();
- 		return $_SESSION['UserAddError']; 		
+ 		$GLOBALS['UserAddError'] = 'Сталася помилка при виконанні запиту '. $e -> getMessage();
+ 		if (stristr($GLOBALS['UserAddError'], 'SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry'))
+ 		{
+ 			$GLOBALS['UserAddError'] = 'Цей логін вже використовується!';
+ 		} 		
  	}	
  }
 
@@ -169,7 +199,7 @@ function SelectObject($objectType, $objectId)
  	catch (PDOException $e)
  	{
  		$_SESSION['UserEditError'] = 'Сталася помилка при виконанні запиту '. $e -> getMessage();
- 		return $_SESSION['UserEditError']; 		
+ 		return $GLOBALS['UserEditError']; 		
  	}	
  }
 
@@ -275,4 +305,168 @@ function SelectObject($objectType, $objectId)
  	}
  }
 
- ?>
+
+function AddUpdateEmailSettings($setUpMode, $id=0, $template, $description, $serverSmtpAuth, $serverHost, $serverPort, $userLogin, $userPassword, $serverEncryption, $isDefault,  $senderEmail, $senderName, $smtpMode,  $textStyle, $useSmtp)
+{
+	if ( $useSmtp == 'on' )
+	{
+		$useSmtp = 1;	
+	} else {
+		$useSmtp = 0;
+	}
+
+	if ($setUpMode==0)
+	{
+		try
+		{
+			$AddEmailSettings_sql = 'INSERT INTO `email_settings` SET template_name=:template, description=:description, use_smtp=:useSmtp, use_smtp_auth=:serverSmtpAuth, host=:serverhost, port=:serverport, server_login=:login, server_password=:password, encryption=:encryption, active=:isDefault, sender_email=:senderEmail, sender_displayname=:senderName, smtp_mode=:smtpMode, ishtml=:textStyle';
+			$AddEmailSettings_exp = $GLOBALS['pdo'] -> prepare($AddEmailSettings_sql);
+			$AddEmailSettings_exp -> bindValue(':template', $template);
+			$AddEmailSettings_exp -> bindValue(':description', $description);
+			$AddEmailSettings_exp -> bindValue(':serverSmtpAuth', $serverSmtpAuth);
+			$AddEmailSettings_exp -> bindValue(':serverhost',$serverHost);
+			$AddEmailSettings_exp -> bindValue(':serverport', $serverPort);
+			$AddEmailSettings_exp -> bindValue(':login', $userLogin);
+			$AddEmailSettings_exp -> bindValue(':password', $userPassword);
+			$AddEmailSettings_exp -> bindValue(':encryption', $serverEncryption);
+			$AddEmailSettings_exp -> bindValue(':isDefault', $isDefault);
+			$AddEmailSettings_exp -> bindValue(':senderEmail', $senderEmail);
+			$AddEmailSettings_exp -> bindValue(':senderName', $senderName);
+			$AddEmailSettings_exp -> bindValue(':smtpMode', $smtpMode);
+			$AddEmailSettings_exp -> bindValue(':textStyle', $textStyle);
+			$AddEmailSettings_exp -> bindValue(':useSmtp', $useSmtp);
+			$AddEmailSettings_exp -> execute();
+		}
+		catch (PDOException $e)
+		{
+			$GLOBALS['AddEmailSettingsError'] = 'Сталася помилка при додаванні налаштувань SMTP-сервера '. $e -> getMessage();  
+		}
+	}
+	elseif ($setUpMode==1)
+	{
+		try
+		{
+			$UpdateEmailSettings_sql = 'UPDATE `email_settings` SET template_name=:template, description=:description,  use_smtp=:useSmtp, use_smtp_auth=:serverSmtpAuth, host=:serverhost, port=:serverport, server_login=:login, server_password=:password, encryption=:encryption, active=:isDefault, sender_email=:senderEmail, sender_displayname=:senderName, smtp_mode=:smtpMode, ishtml=:textStyle WHERE id=:id';
+			$UpdateEmailSettings_exp = $GLOBALS['pdo'] -> prepare($UpdateEmailSettings_sql);
+			$UpdateEmailSettings_exp -> bindValue(':id', $id);
+			$UpdateEmailSettings_exp -> bindValue(':template', $template);
+			$UpdateEmailSettings_exp -> bindValue(':description', $description);
+			$UpdateEmailSettings_exp -> bindValue(':serverSmtpAuth', $serverSmtpAuth);
+			$UpdateEmailSettings_exp -> bindValue(':serverhost',$serverHost);
+			$UpdateEmailSettings_exp -> bindValue(':serverport', $serverPort);
+			$UpdateEmailSettings_exp -> bindValue(':login', $userLogin);
+			$UpdateEmailSettings_exp -> bindValue(':password', $userPassword);
+			$UpdateEmailSettings_exp -> bindValue(':encryption', $serverEncryption);
+			$UpdateEmailSettings_exp -> bindValue(':isDefault', '1');
+			$UpdateEmailSettings_exp -> bindValue(':senderEmail', $senderEmail);
+			$UpdateEmailSettings_exp -> bindValue(':senderName', $senderName);
+			$UpdateEmailSettings_exp -> bindValue(':smtpMode', $smtpMode);
+			$UpdateEmailSettings_exp -> bindValue(':textStyle', $textStyle);
+			$UpdateEmailSettings_exp -> bindValue(':useSmtp', $useSmtp);
+			$UpdateEmailSettings_exp -> execute();
+		}
+		catch (PDOException $e)
+		{
+			$GLOBALS['UpdateEmailSettingsError'] = 'Сталася помилка при оновленні налаштувань SMTP-сервера '. $e -> getMessage();  
+		}
+	}
+}
+
+function makeActive ($id) {
+	try {
+		$makeInactive = $GLOBALS['pdo'];
+		$makeInactive -> exec('UPDATE email_settings SET active=0');
+		unset($makeInactive);
+		$makeActive_sql = 'UPDATE email_settings SET active=1 WHERE id=:id';
+		$makeActive_exp = $GLOBALS['pdo'] -> prepare($makeActive_sql);
+		$makeActive_exp -> bindValue(':id', $id);
+		$makeActive_exp -> execute();
+	} catch (PDOException $e) {
+		$GLOBALS['makeActiveError'] = 'Сталася помилка при оновленні типових налаштувань '.$e -> getMessage();		
+	}
+}
+
+function returnActive() {
+	try {
+		$returnActive = $GLOBALS['pdo'];		
+		$activeQuery = $returnActive -> query('SELECT * FROM email_settings WHERE active=1');
+		$activeResult = $activeQuery -> fetch();
+		return $activeResult;		
+	} catch (PDOException $e) {
+		$GLOBALS['returnActiveError'] = 'Сталася помилка при виборі типових налаштувань '.$e -> getMessage();		
+	}
+}
+
+ function SendMailByPHPMailer($recieverName, $recieverEmail, $senderName, $senderEmail, $senderPhone, $letterTheme, $senderText, $smtpMode, $serverHost, $serverSmtpAuth, $serverUserName, $serverUserPassword, $serverEncryption, $serverPort, $serverEmail, $serverName, $isHtml, $useSmtp)
+ { 	
+ 	//$recieverName = 'Юрій Павлович';
+ 	//$letterTheme = 'Мені потрібна консультація!';
+ 	$messageText = '
+ 	<h3>Доброго дня, шановний, '.$recieverName.'!</h3>
+ 	<p>Мене звати '.$senderName.'</p>
+	<p>Моя поштова скринька: '.$senderEmail.'</p>
+	<p>Мій номер телефону: '.$senderPhone.'</p>
+	<p>Моє питання:</p><p>'.$senderText.'</p>';
+
+	$mail = new PHPMailer(true);                              // Passing `true` enables exceptions
+		try {
+		    //Server settings
+		    $mail->SMTPDebug = $smtpMode;   
+		    if ( $useSmtp==1 ) {
+			    $mail->isSMTP();                                      // Set mailer to use SMTP
+			    $mail->Host = $serverHost;  // Specify main and backup SMTP servers
+			    $mail->SMTPAuth = $serverSmtpAuth;                               // Enable SMTP authentication
+			    $mail->Username = $serverUserName;                 // SMTP username
+			    $mail->Password = $serverUserPassword;                           // SMTP password
+			    $mail->SMTPSecure = $serverEncryption;                            // Enable TLS encryption, `ssl` also accepted
+			    $mail->Port = $serverPort;                                    // TCP port to connect to
+			}
+		    //Recipients
+		    $mail->setFrom($serverEmail, $serverName);
+		    $mail->addAddress($recieverEmail, $recieverName);     // Add a recipient
+
+		    //Attachments
+		   // $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
+		   // $mail->addAttachment('/tmp/image.jpg', 'new.jpg');    // Optional name
+
+		    //Content
+		    $mail->isHTML($isHtml);                                  // Set email format to HTML
+		    $mail->Subject = $letterTheme;
+		    $mail->Body    = $messageText;
+		    $mail->AltBody = $messageText;
+
+		    $mail->send();
+		    $GLOBALS['MailSuccess'] = 'Листа було успішно відправлено! Очікуйте відповіді на Вашу поштову адресу.';
+		} catch (PDOException $e) {
+		    $GLOBALS['SendMailError'] = 'Не вдалося відправити листа: '. $mail->ErrorInfo;
+		}
+ 	// $isSent=mail($recieverEmail, $letterTheme, $messageText);
+ 	// $server_respond='Something';
+  	try
+ 	{
+ 		//$Sendmail_insert_sql = 'INSERT INTO `maillog`(`sent_date`, `sent_data`, `mailserver_respond`, `client_name`, `client_phone`, `client_email`) VALUES (NOW(), :messageText, "", :senderName, :senderPhone, :senderEmail)';
+ 		$Sendmail_insert_sql = 'INSERT INTO maillog SET sent_date=NOW(), sent_data=:messageText, mailserver_respond=:server_respond, client_name=:senderName, client_phone=:senderPhone, client_email=:senderEmail';		
+ 		$Sendermail_insert_exp = $GLOBALS['pdo'] -> prepare($Sendmail_insert_sql);
+ 		$Sendermail_insert_exp -> bindValue(':messageText', $messageText);
+ 		$Sendermail_insert_exp -> bindValue(':server_respond', $GLOBALS['SendMailError']);
+ 		$Sendermail_insert_exp -> bindValue(':senderName', $senderName);
+ 		$Sendermail_insert_exp -> bindValue(':senderPhone', $senderPhone);
+ 		$Sendermail_insert_exp -> bindValue(':senderEmail', $senderEmail);
+ 		$Sendermail_insert_exp -> execute(); 			
+ 		return $SendMail = true; 
+ 	}
+ 	catch (PDOException $e)
+ 	{
+ 		$_SESSION['SendMailInsertError'] = 'Сталася помилка при записі поштового логу '. $e -> getMessage(); 		
+ 		return $_SESSION['SendMailInsertError'];
+ 	}
+}
+
+function ShowPagination($PageQuantity, $url='') {
+	$PageNum = 0;
+	while( $PageNum < $PageQuantity ) {
+		$PageNum++;		
+		echo '<a href="'.$url.$PageNum.'">['.$PageNum.']</a>';
+	}
+}
+?>

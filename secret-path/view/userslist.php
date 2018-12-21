@@ -26,18 +26,19 @@
 			<div class="user-box">
 				<div class="pic"><img src="<?php echo $user['avatar_url']; ?>" alt="avatar"></div>
 				<div class="info">
-					<p class="name"><?php echo $user['name']; ?></p>
+					<p class="name"><?php echo $user['name'].' ('.$user['login'].')';?></p>
 					<p class="email"><a href="mailto:'<?php echo $user['email']; ?>'"><?php echo $user['email']; ?></a></p>
 					<p>Тип користувача: <?php echo $role_name; ?> </p>
 					<p class="last-seen">Останній вхід: <?php echo $user['last_login']; ?></p>
-					<form action="" method="post">
+					<form action="?user=add" method="post">
 						<button name="edit" value="<?php echo $user['id']; ?>">Редагувати</button>											
 					</form>
 					<button class="delete-user-btn" style="display: '<?php echo $_GLOBALS['usersToDel']; ?>';">Видалити</button>	
 					<button class="new-pass">Змінити пароль</button>
 					<form class="new-pass-form" style="display: none;" action="?change-pass=1" method="post">
-						<a class="showmepass" href="javascript:void(0);" "eye">eye</a>
-						<input class="new-password" type="password" name="password" placeholder="Введіть новий пароль">
+						<div class="password-box">
+							<input class="secret" type="password" name="password" placeholder="Введіть новий пароль">
+						</div>
 						<button type="submit" name="resetPswd" value="<?php echo $user['id']; ?>">OK</button>
 						<button type="reset">Відмінити</button>
 					</form>

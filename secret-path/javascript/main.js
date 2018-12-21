@@ -1,6 +1,15 @@
 $(document).ready(
 function()
 {	
+	console.log(location.href);
+	if ( location.href == 'http://pbd.ua/?send-email=1' ) {
+		setTimeout (
+			function() {
+				location.href = 'http://pbd.ua';			
+			}, 5000
+		);
+	}
+
 	$('button.new-pass').on('click',
 		function()
 		{
@@ -17,12 +26,14 @@ function()
 			// $(this).closest('form').siblings('button.new-pass').show();
 		}
 	);
-	$('.showmepass').on({
-		mousedown: function() {
-			$(this).next('.new-password').attr('type','text');
+	$('.password-box').before().on({
+		mousedown: function() {	
+			$(this).css('color','red');		
+			$(this).children('.secret').attr('type','text');
 		},
 		mouseup: function() {
-			$(this).next('.new-password').attr('type','password');
+			$(this).css('color','black');
+			$(this).children('.secret').attr('type','password');
 		}
 	});
 	$('.delete-user-btn').on('click',

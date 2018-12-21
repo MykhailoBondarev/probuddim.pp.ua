@@ -1,0 +1,2 @@
+2018/11/07 16:23:51 [error] 2746#100174: *46 directory index of "/usr/local/www/vhost/probuddim.pp.ua/Server_Errors/" is forbidden, client: 77.88.209.171, server: probuddim.pp.ua, request: "GET /Server_Errors/ HTTP/2.0", host: "probuddim.pp.ua"
+2018/11/07 16:23:51 [error] 2746#100174: *46 open() "/usr/local/www/vhost/probuddim.pp.ua/favicon.ico" failed (2: No such file or directory), client: 77.88.209.171, server: probuddim.pp.ua, request: "GET /favicon.ico HTTP/2.0", host: "probuddim.pp.ua", referrer: "https://probuddim.pp.ua/Server_Errors/"

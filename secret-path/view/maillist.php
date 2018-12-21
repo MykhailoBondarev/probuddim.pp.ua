@@ -1,3 +1,6 @@
+<?php if (isset($_SESSION['id'])) 
+{
+?>
 <div>
 	<table>
 		<caption>Список пошти</caption>
@@ -13,7 +16,7 @@
 		</thead>
 		<tbody>
 	<?php 
-		$mails = ObjectList('maillog');
+		$mails = ObjectListPag( 'maillog', $StartMessage, $MessagesPerPage );
 		if ($mails[0]!='')
 		{
 			foreach( $mails as $mail)
@@ -40,3 +43,9 @@
 	 	</tbody>
 	</table>
 </div>
+<?php 
+}
+else
+{
+	echo 'У Вас немає прав на перегляд цієї сторінки';
+} ?>

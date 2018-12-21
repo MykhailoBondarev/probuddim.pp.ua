@@ -18,9 +18,12 @@
 					$_GLOBALS['usersToDel'] = 'block';
 				}
 		?>
-<?php if ($_SESSION['role']<=1) { ?><a href="?userslist=1">Список користувачів <span><?php echo $UsersQuantity; ?></span></a> <?php } ?>
+<?php if ($_SESSION['role']<=1) { ?>
+	<a href="?userslist=1">Список користувачів <span><?php echo $UsersQuantity; ?></span></a> 
+	<a href="?mailsettings=1">Налаштування SMTP-сервера</a>
+<?php } ?>
 		<a href="?maillist=1">Список листів <span><?php echo $MailsQuantity; ?></span></a>	
+		<a href="?web-srv-errors=1">Помилки Веб-сервера</a>
 	</div>	
 	<div style="clear: both; height: 1px;"></div>
 </div>
-<?php echo $_SESSION['UserAddError']; echo $_SESSION['UserEditError']; ?>

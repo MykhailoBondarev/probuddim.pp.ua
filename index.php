@@ -1,17 +1,22 @@
 <?php 
-if ($_GET['send-email']==1)
-{
-	header('Location: .');	
-}
-include_once( $_SERVER['DOCUMENT_ROOT'].'/secret-path/functions.inc.php');
- /* Super method send mail and log it in DB  SendMail($recieverEmail, $senderName, $senderEmail, $senderPhone, $senderText) */
+// if ($_GET['send-email']==1)
+// {
+// 	header('Location: .');	
+// }
+include_once $_SERVER['DOCUMENT_ROOT'].'/secret-path/phpmailer_active_set.php';
+
+	$recieverName = 'Юрій Павлович';
+	$recieverEmail = 'palych@gmail.com';
+	$letterTheme = 'Мені потрібна консультація!';
+
  if ($_GET['send-email']==1)
  { 	
 	  if ($_POST['client-name']!='' and $_POST['email']!='' and $_POST['phone']!='' and $_POST['details']!='')
 	 {	 	
 	 	if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL))
 	 	{
-	 		$SendMail=SendMail('myemail@mail.com', $_POST['client-name'], $_POST['email'], $_POST['phone'], $_POST['details']);	 	 
+	 		//$SendMail=SendMail('myemail@mail.com', $_POST['client-name'], $_POST['email'], $_POST['phone'], $_POST['details']);	 	 
+	 		SendMailByPHPMailer($recieverName, $recieverEmail, $_POST['client-name'], $_POST['email'], $_POST['phone'], $letterTheme, $_POST['details'], $GLOBALS['smtpMode'], $GLOBALS['host'], $GLOBALS['useSmtpAuth'], $GLOBALS['server_login'], $GLOBALS['server_password'], $GLOBALS['encryption'], $GLOBALS['port'], $GLOBALS['sender_email'], $GLOBALS['sender_name'], $GLOBALS['isHtml'], $_POST['use_smtp']);
 	 	} 
 	 	else
 	 	{
@@ -42,6 +47,7 @@ include_once( $_SERVER['DOCUMENT_ROOT'].'/secret-path/functions.inc.php');
 <div class="fb-page" data-href="https://www.facebook.com/facebook" data-tabs="friends" data-small-header="false" data-adapt-container-width="true" data-hide-cover="false" data-show-facepile="true"><blockquote cite="https://www.facebook.com/facebook" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/facebook">Facebook</a></blockquote></div>
 
 </body>
+<?php include $_SERVER['DOCUMENT_ROOT'].'/secret-path/view/footer.php'; ?>
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
