@@ -3,8 +3,13 @@
 	{
 
  ?>
-<div>
-	<a href="?user=add">Новий користувач</a> 
+<div class="admin-container">
+	<div class="btn-box">
+		<a class="btn" href="?user=add" title="Додати нового користувача">
+			<i class="fa fa-user-plus"></i>
+			<m>Додати користувача</m>		
+		</a> 	
+	</div>
 	<?php 
 	$users = ObjectList('users');
 	$roles = ObjectList('roles');
@@ -31,23 +36,32 @@
 					<p>Тип користувача: <?php echo $role_name; ?> </p>
 					<p class="last-seen">Останній вхід: <?php echo $user['last_login']; ?></p>
 					<form action="?user=add" method="post">
-						<button name="edit" value="<?php echo $user['id']; ?>">Редагувати</button>											
+						<button class="btn" name="edit" value="<?php echo $user['id']; ?>">
+							<i class="fa fa-user-edit"></i>
+							<m>Редагувати</m>
+						</button>											
 					</form>
-					<button class="delete-user-btn" style="display: '<?php echo $_GLOBALS['usersToDel']; ?>';">Видалити</button>	
-					<button class="new-pass">Змінити пароль</button>
+					<button class="btn delete-user-btn" style="display: '<?php echo $_GLOBALS['usersToDel']; ?>';">
+						<i class="fa fa-user-times"></i>
+						<m>Видалити</m>
+					</button>	
+					<button class="btn new-pass">
+						<i class="fa fa-key"></i>
+						<m>Змінити пароль</m>
+					</button>
 					<form class="new-pass-form" style="display: none;" action="?change-pass=1" method="post">
-						<div class="password-box">
-							<input class="secret" type="password" name="password" placeholder="Введіть новий пароль">
+						<div class="fa password-box">
+							<input class="secret admin-input" type="password" name="password" placeholder="Введіть новий пароль">
 						</div>
-						<button type="submit" name="resetPswd" value="<?php echo $user['id']; ?>">OK</button>
-						<button type="reset">Відмінити</button>
+						<button class="btn" type="submit" name="resetPswd" value="<?php echo $user['id']; ?>">OK</button>
+						<button class="btn" type="reset">Відмінити</button>
 					</form>
 				</div>
 				<div class="deleteuser-bg" style="display: none;">
 					<form action="" method="post" class="deleteuser-window">
 						<label>Ви дійсно хочете видалити користувача <?php echo $user['name']; ?> ?</label>						
-						<button name="delete-user" value="<?php echo $user['id']; ?>">Видалити</button>
-						<button class="cancel-btn">Скасувати</button>
+						<button class="btn" name="delete-user" value="<?php echo $user['id']; ?>">Видалити</button>
+						<button class="btn cancel-btn">Скасувати</button>
 					</form>
 				</div>
 			</div>
@@ -55,7 +69,7 @@
 	} 
 	else
 	{ ?>
-		<p>Не знайдено жодного користувача. <a href="?user=add">Додати?</a> </p>
+		<p>Не знайдено жодного користувача. <a class="btn" href="?user=add"><i class="fa fa-user-plus"></i><m>Додати?<m></a> </p>
 <?php } ?>	
 </div>
 <?php }

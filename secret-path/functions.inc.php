@@ -38,6 +38,11 @@ function OnlyNum($str)
 	}
 }
 
+function ClearPhone($phoneStr)
+{
+	return preg_replace('/\+|\s|\W/', '', $phoneStr);
+}
+
  function LogOut()
  {
 	unset($_SESSION['id']);
@@ -123,7 +128,7 @@ function ObjectList($objectType)
  {
  	try 
  	{
- 		$ObjectList_sql_str = 'SELECT * FROM '.$objectType.' LIMIT '.$start.', '.$limit;
+ 		$ObjectList_sql_str = 'SELECT * FROM '.$objectType.' ORDER BY sent_date DESC LIMIT '.$start.', '.$limit;
  		$ObjectList_select_exp = $GLOBALS['pdo'] -> prepare($ObjectList_sql_str);
  		$ObjectList_select_exp -> execute();
  		$ObjectListResultArr = $ObjectList_select_exp -> fetchAll();
@@ -257,37 +262,28 @@ function SelectObject($objectType, $objectId)
  	}	
  }
 
- function SendMail($recieverEmail, $senderName, $senderEmail, $senderPhone, $senderText)
+ function SendMail($letterTheme, $recieverName, $recieverEmail, $displayName, $displayEmail, $clientName, $clientEmail, $clientPhone, $senderText)
  { 	
- 	$recieverName = 'Юрій Павлович';
- 	$letterTheme = 'Мені потрібна консультація!';
+ 	$breakLine;
+ 	$headers  = 'MIME-Version: 1.0' . "\r\n";
+	if ($GLOBALS['isHtml']==1) {		
+		$headers .= 'Content-type: text/html; charset=utf-8' . "\r\n";
+		$breakLine = '<br>';
+	} else {		
+		$headers .= 'Content-type: text/plain; charset=utf-8' . "\r\n";
+		$breakLine = '"\r\n"';
+	}
+	$headers .= 'From: "'.$displayName.'" <'.$displayEmail.'>'. "\r\n";
+
  	$messageText = '
- 	Доброго дня, шановний, '.$recieverName.'!\r\n
- 	Мене звати '.$senderName.'\r\n
-	Моя поштова скринька: '.$senderEmail.'\r\n
-	Мій номер телефону: '.$senderPhone.'\r\n
-	Моє питання\r\n'.$senderText;
- 	$isSent=mail($recieverEmail, $letterTheme, $messageText);
- 	$server_respond='Something';
-  	try
- 	{
- 		//$Sendmail_insert_sql = 'INSERT INTO `maillog`(`sent_date`, `sent_data`, `mailserver_respond`, `client_name`, `client_phone`, `client_email`) VALUES (NOW(), :messageText, "", :senderName, :senderPhone, :senderEmail)';
- 		$Sendmail_insert_sql = 'INSERT INTO maillog SET sent_date=NOW(), sent_data=:messageText, mailserver_respond=""/*:server_respond*/, client_name=:senderName, client_phone=:senderPhone, client_email=:senderEmail';		
- 		$Sendermail_insert_exp = $GLOBALS['pdo'] -> prepare($Sendmail_insert_sql);
- 		$Sendermail_insert_exp -> bindValue(':messageText', $messageText);
- 		// $Sendermail_insert_exp -> bindValue(':server_respond', $server_respond);
- 		$Sendermail_insert_exp -> bindValue(':senderName', $senderName);
- 		$Sendermail_insert_exp -> bindValue(':senderPhone', $senderPhone);
- 		$Sendermail_insert_exp -> bindValue(':senderEmail', $senderEmail);
- 		$Sendermail_insert_exp -> execute();
- 		echo 'execute OK!<br>'; 		
- 		return $SendMail = true; 
- 	}
- 	catch (PDOException $e)
- 	{
- 		$_SESSION['SendMailInsertError'] = 'Сталася помилка при записі поштового логу '. $e -> getMessage(); 		
- 		return $_SESSION['SendMailInsertError'];
- 	}
+ 	Доброго дня, шановний, '.$recieverName.'!'.$breakLine.
+ 	'Мене звати '.$clientName.$breakLine.
+	'Моя поштова скринька: '.$clientEmail.$breakLine.
+	'Мій номер телефону: '.$clientPhone.$breakLine.
+	'Моє питання <br>'.$senderText;
+
+ 	$isSent=mail($recieverEmail, $letterTheme, $messageText, $headers);
+ 	mailLoger($messageText, $GLOBALS['SendMailError'], $clientName, $clientPhone, $clientEmail);
  }
 
  function Search($tableName, $rowName, $query)
@@ -306,21 +302,36 @@ function SelectObject($objectType, $objectId)
  }
 
 
-function AddUpdateEmailSettings($setUpMode, $id=0, $template, $description, $serverSmtpAuth, $serverHost, $serverPort, $userLogin, $userPassword, $serverEncryption, $isDefault,  $senderEmail, $senderName, $smtpMode,  $textStyle, $useSmtp)
+function AddUpdateEmailSettings($setUpMode, $use_phpmailer, $id=0, $template, $description, $serverSmtpAuth, $serverHost, $serverPort, $userLogin, $userPassword, $serverEncryption, $isDefault,  $senderEmail, $senderName, $smtpMode,  $textStyle, $useSmtp)
 {
 	if ( $useSmtp == 'on' )
 	{
 		$useSmtp = 1;	
 	} else {
 		$useSmtp = 0;
+		$serverSmtpAuth=0;
+		$serverHost='';
+		$serverPort=0;
+		$userLogin='';
+		$userPassword='';
+		$serverEncryption='';
+		$isDefault=0;
+	}
+
+	if ( $use_phpmailer == 'on' )
+	{
+		$use_phpmailer = 1;
+	} else {
+		$use_phpmailer = 0;
 	}
 
 	if ($setUpMode==0)
 	{
 		try
 		{
-			$AddEmailSettings_sql = 'INSERT INTO `email_settings` SET template_name=:template, description=:description, use_smtp=:useSmtp, use_smtp_auth=:serverSmtpAuth, host=:serverhost, port=:serverport, server_login=:login, server_password=:password, encryption=:encryption, active=:isDefault, sender_email=:senderEmail, sender_displayname=:senderName, smtp_mode=:smtpMode, ishtml=:textStyle';
+			$AddEmailSettings_sql = 'INSERT INTO `email_settings` SET direct=:use_phpmailer, template_name=:template, description=:description, use_smtp=:useSmtp, use_smtp_auth=:serverSmtpAuth, host=:serverhost, port=:serverport, server_login=:login, server_password=:password, encryption=:encryption, active=:isDefault, sender_email=:senderEmail, sender_displayname=:senderName, smtp_mode=:smtpMode, ishtml=:textStyle';
 			$AddEmailSettings_exp = $GLOBALS['pdo'] -> prepare($AddEmailSettings_sql);
+			$AddEmailSettings_exp -> bindValue(':use_phpmailer', $use_phpmailer);
 			$AddEmailSettings_exp -> bindValue(':template', $template);
 			$AddEmailSettings_exp -> bindValue(':description', $description);
 			$AddEmailSettings_exp -> bindValue(':serverSmtpAuth', $serverSmtpAuth);
@@ -346,9 +357,10 @@ function AddUpdateEmailSettings($setUpMode, $id=0, $template, $description, $ser
 	{
 		try
 		{
-			$UpdateEmailSettings_sql = 'UPDATE `email_settings` SET template_name=:template, description=:description,  use_smtp=:useSmtp, use_smtp_auth=:serverSmtpAuth, host=:serverhost, port=:serverport, server_login=:login, server_password=:password, encryption=:encryption, active=:isDefault, sender_email=:senderEmail, sender_displayname=:senderName, smtp_mode=:smtpMode, ishtml=:textStyle WHERE id=:id';
-			$UpdateEmailSettings_exp = $GLOBALS['pdo'] -> prepare($UpdateEmailSettings_sql);
+			$UpdateEmailSettings_sql = 'UPDATE `email_settings` SET direct=:use_phpmailer, template_name=:template, description=:description,  use_smtp=:useSmtp, use_smtp_auth=:serverSmtpAuth, host=:serverhost, port=:serverport, server_login=:login, server_password=:password, encryption=:encryption, active=:isDefault, sender_email=:senderEmail, sender_displayname=:senderName, smtp_mode=:smtpMode, ishtml=:textStyle WHERE id=:id';
+			$UpdateEmailSettings_exp = $GLOBALS['pdo'] -> prepare($UpdateEmailSettings_sql);			
 			$UpdateEmailSettings_exp -> bindValue(':id', $id);
+			$UpdateEmailSettings_exp -> bindValue(':use_phpmailer', $use_phpmailer);
 			$UpdateEmailSettings_exp -> bindValue(':template', $template);
 			$UpdateEmailSettings_exp -> bindValue(':description', $description);
 			$UpdateEmailSettings_exp -> bindValue(':serverSmtpAuth', $serverSmtpAuth);
@@ -397,10 +409,19 @@ function returnActive() {
 	}
 }
 
+function returnLetterSettings() {
+	try {
+		$returnLetterSettings = $GLOBALS['pdo'];		
+		$LetterSettingsQuery = $returnLetterSettings -> query('SELECT ls.* FROM letter_settings ls JOIN email_settings es ON ls.id=es.letter_type WHERE active=1');
+		$LetterSettingsResult = $LetterSettingsQuery -> fetch();
+		return $LetterSettingsResult;		
+	} catch (PDOException $e) {
+		$GLOBALS['returnLetterSettingsError'] = 'Сталася помилка при виборі типових налаштувань '.$e -> getMessage();		
+	}
+}
+
  function SendMailByPHPMailer($recieverName, $recieverEmail, $senderName, $senderEmail, $senderPhone, $letterTheme, $senderText, $smtpMode, $serverHost, $serverSmtpAuth, $serverUserName, $serverUserPassword, $serverEncryption, $serverPort, $serverEmail, $serverName, $isHtml, $useSmtp)
  { 	
- 	//$recieverName = 'Юрій Павлович';
- 	//$letterTheme = 'Мені потрібна консультація!';
  	$messageText = '
  	<h3>Доброго дня, шановний, '.$recieverName.'!</h3>
  	<p>Мене звати '.$senderName.'</p>
@@ -409,7 +430,7 @@ function returnActive() {
 	<p>Моє питання:</p><p>'.$senderText.'</p>';
 
 	$mail = new PHPMailer(true);                              // Passing `true` enables exceptions
-		try {
+
 		    //Server settings
 		    $mail->SMTPDebug = $smtpMode;   
 		    if ( $useSmtp==1 ) {
@@ -437,36 +458,41 @@ function returnActive() {
 
 		    $mail->send();
 		    $GLOBALS['MailSuccess'] = 'Листа було успішно відправлено! Очікуйте відповіді на Вашу поштову адресу.';
-		} catch (PDOException $e) {
-		    $GLOBALS['SendMailError'] = 'Не вдалося відправити листа: '. $mail->ErrorInfo;
-		}
+		    if ($mail->ErrorInfo) {
+		    	$GLOBALS['SendMailError'] = 'Не вдалося відправити листа: '. $mail->ErrorInfo;	
+		    }		    
  	// $isSent=mail($recieverEmail, $letterTheme, $messageText);
  	// $server_respond='Something';
-  	try
- 	{
- 		//$Sendmail_insert_sql = 'INSERT INTO `maillog`(`sent_date`, `sent_data`, `mailserver_respond`, `client_name`, `client_phone`, `client_email`) VALUES (NOW(), :messageText, "", :senderName, :senderPhone, :senderEmail)';
+		    mailLoger($messageText, $GLOBALS['SendMailError'], $senderName, $senderPhone, $senderEmail); 
+}
+
+function mailLoger ($messageText, $SendMailError, $senderName, $senderPhone, $senderEmail) {
+	try { 		
  		$Sendmail_insert_sql = 'INSERT INTO maillog SET sent_date=NOW(), sent_data=:messageText, mailserver_respond=:server_respond, client_name=:senderName, client_phone=:senderPhone, client_email=:senderEmail';		
  		$Sendermail_insert_exp = $GLOBALS['pdo'] -> prepare($Sendmail_insert_sql);
  		$Sendermail_insert_exp -> bindValue(':messageText', $messageText);
- 		$Sendermail_insert_exp -> bindValue(':server_respond', $GLOBALS['SendMailError']);
+ 		$Sendermail_insert_exp -> bindValue(':server_respond', $SendMailError);
  		$Sendermail_insert_exp -> bindValue(':senderName', $senderName);
  		$Sendermail_insert_exp -> bindValue(':senderPhone', $senderPhone);
  		$Sendermail_insert_exp -> bindValue(':senderEmail', $senderEmail);
  		$Sendermail_insert_exp -> execute(); 			
  		return $SendMail = true; 
  	}
- 	catch (PDOException $e)
- 	{
+ 	catch (PDOException $e) {
  		$_SESSION['SendMailInsertError'] = 'Сталася помилка при записі поштового логу '. $e -> getMessage(); 		
  		return $_SESSION['SendMailInsertError'];
  	}
 }
 
 function ShowPagination($PageQuantity, $url='') {
-	$PageNum = 0;
-	while( $PageNum < $PageQuantity ) {
-		$PageNum++;		
-		echo '<a href="'.$url.$PageNum.'">['.$PageNum.']</a>';
+	if ($PageQuantity > 1) {
+		$PageNum = 0;
+		echo '<a class="btn" href="'.$url.'1">&nbsp;&lArr;&nbsp;</a>';
+		while( $PageNum < $PageQuantity ) {
+			$PageNum++;		
+			echo '<a class="btn" href="'.$url.$PageNum.'">&nbsp;'.$PageNum.'&nbsp;</a>';
+		}
+		echo '<a class="btn" href="'.$url.$PageNum.'">&nbsp;&rArr;&nbsp;</a>';
 	}
 }
 ?>

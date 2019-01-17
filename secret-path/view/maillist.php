@@ -1,7 +1,11 @@
 <?php if (isset($_SESSION['id'])) 
 {
 ?>
-<div>
+<div class="admin-container">
+	<?php 
+		// pagination top		
+		ShowPagination($PagesCount, '?maillist=' );
+	 ?>
 	<table>
 		<caption>Список пошти</caption>
 		<thead>
@@ -16,11 +20,10 @@
 		</thead>
 		<tbody>
 	<?php 
-		$mails = ObjectListPag( 'maillog', $StartMessage, $MessagesPerPage );
-		if ($mails[0]!='')
-		{
-			foreach( $mails as $mail)
-			{
+		   $mails = ObjectListPag( 'maillog', $StartMessage, $MessagesPerPage );
+
+		if ($mails[0]!='') {
+			foreach( $mails as $mail) {			
 		?>		
 			<tr>
 				<td><?php echo $mail['sent_date']; ?></td>
@@ -33,8 +36,7 @@
 		<?php
 			}
 		}
-		else
-		{ 
+		else { 
 		?>	
 			<td><?php echo 'Поки що немає жодного листа!'; ?></td>				
 		<?php 	
@@ -42,6 +44,10 @@
 	 ?>
 	 	</tbody>
 	</table>
+	<?php 
+		// pagination bottom
+		ShowPagination($PagesCount, '?maillist=' );
+	 ?>
 </div>
 <?php 
 }

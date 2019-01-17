@@ -1,0 +1,8 @@
+User-Agent: *
+Allow: /
+Disallow: /secret-path/
+Disallow: /Server-Errors/
+Disallow: /img/
+Disallow: /slick/
+Host: https://probuddim.pp.ua
+Sitemap: https://probuddim.pp.ua/sitemap.xml

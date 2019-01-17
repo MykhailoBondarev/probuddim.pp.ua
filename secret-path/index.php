@@ -1,5 +1,9 @@
 <?php 
-if ($_SESSION['loginError']!=''){echo $_SESSION['loginError'].'<br>';}
+error_reporting(E_ALL & ~E_NOTICE);
+$GLOBALS['error_file'] = '/var/log/nginx/probuddim.pp.ua_error.log';
+if ($_SESSION['loginError']!='') {
+	echo $_SESSION['loginError'].'<br>';
+}
 if ($_POST['logout']==1 or $_GLOBALS['AddUser']==true or $_GLOBALS['EditUser']==true)
 {	
 	header('Location: .');
@@ -10,19 +14,10 @@ if ($_GET['change-pass']==1 or $_POST['delete-user']!='')
 }
 if ($_GET['clear-logs']==1)
 {
-	$WSErrors_file = fopen($GLOBALS['error_file'], 'a'); //Відкриваємо файл у режимі запису
-	ftruncate($WSErrors_file, 0); // Очищаємо файл
-	header('Location: ?web-srv-errors=1');
-}
-
-
-if ( $_POST['test-email']!='' and $GLOBALS['SendMailError']!='No errors' ) {
-	$error=1;
-}
-if ( $_POST['test-email']!='' and $GLOBALS['SendMailError']=='No errors' ) {
-	$error=0;
-} else {
-	unset($error);
+	exec('> '.$GLOBALS['error_file']);
+	// $WSErrors_file = fopen($GLOBALS['error_file'], 'a'); //Відкриваємо файл у режимі запису
+	// ftruncate($WSErrors_file, 0); // Очищаємо файл
+	header('Location: ?web-srv-errors=1');	
 }
 
 if ( isset($_GET['smtp-save']) or $_GET['smtp-default']==1 or $error==1 ) { 
@@ -30,6 +25,7 @@ if ( isset($_GET['smtp-save']) or $_GET['smtp-default']==1 or $error==1 ) {
 }
 session_start();
 include $_SERVER['DOCUMENT_ROOT'].'/secret-path/view/header.php';
+
 if($_POST['submit']==1)
 {
 	if (isset($_POST['login'])&&isset($_POST['password'])&&$_POST['login']!=''&&$_POST['password']!='')
@@ -120,8 +116,7 @@ if($_FILES['avatar']['size']>0 && $_FILES['avatar']['error']==0)
 			echo 'Аватар успішно завантажений!';			
 			unset($_FILES['avatar']);
 		}
-		else
-		{
+		else {
 			echo 'Помилка завантаження. Перевірте налаштування PHP!';
 		}
 	}
@@ -132,7 +127,7 @@ if($_FILES['avatar']['size']>0 && $_FILES['avatar']['error']==0)
 }
 if (isset($_POST['template-name'])) {
 	if (isset($_GET['smtp-save'])) {	
-		AddUpdateEmailSettings($_GET['smtp-save'], $_POST['template-id'], $_POST['template-name'], $_POST['server-description'], $_POST['smtpAuth'], $_POST['hostname'], $_POST['serverPort'], $_POST['userLogin'], $_POST['userPassword'], $_POST['smtpEncryption'], $_POST['isDefault'],  $_POST['senderEmail'], $_POST['senderName'], $_POST['smtpMode'],  $_POST['textStyle'], $_POST['use_smtp']);	
+		AddUpdateEmailSettings($_GET['smtp-save'], $_POST['use-phpmailer'], $_POST['template-id'], $_POST['template-name'], $_POST['server-description'], $_POST['smtpAuth'], $_POST['hostname'], $_POST['serverPort'], $_POST['userLogin'], $_POST['userPassword'], $_POST['smtpEncryption'], $_POST['isDefault'],  $_POST['senderEmail'], $_POST['senderName'], $_POST['smtpMode'],  $_POST['textStyle'], $_POST['use_smtp']);	
 	}
 }
 
@@ -141,14 +136,18 @@ if ($_GET['smtp-default']==1) {
 }
 
 if ($_POST['test-email']!='') {
-	$recieverName = 'Папа Палич';
-	$recieverEmail = 'mymail@mail.com';
-	$letterTheme = 'Тестовий лист';
-	$client_name = 'My name';
+	$recieverName = 'Reciever Name';
+	$letterTheme = 'Test letter: Кирилиця';
+	$client_name = 'Test name';
+	$client_email = 'client@email.com';
 	$client_phone = '0999999999';
-	$test_details = 'Це тестова розсилка';
+	$test_details = 'How is your test distribution?';
 
-	SendMailByPHPMailer($recieverName, $recieverEmail, $client_name, $_POST['test-email'], $client_phone, $letterTheme, $test_details, $GLOBALS['smtpMode'], $GLOBALS['host'], $GLOBALS['useSmtpAuth'], $GLOBALS['server_login'], $GLOBALS['server_password'], $GLOBALS['encryption'], $GLOBALS['port'], $GLOBALS['sender_email'], $GLOBALS['sender_name'], $GLOBALS['isHtml'], $_POST['use_smtp']);
+	if ($GLOBALS['use_phpmailer']!=0) {
+		SendMailByPHPMailer($recieverName, $_POST['test-email'], $client_name, $_POST['test-email'], $client_phone, $letterTheme, $test_details, $GLOBALS['smtpMode'], $GLOBALS['host'], $GLOBALS['useSmtpAuth'], $GLOBALS['server_login'], $GLOBALS['server_password'], $GLOBALS['encryption'], $GLOBALS['port'], $GLOBALS['sender_email'], $GLOBALS['sender_name'], $GLOBALS['isHtml'], $_POST['use_smtp']);
+	} else {		
+		SendMail($letterTheme, $recieverName, $_POST['test-email'], $GLOBALS['sender_name'], $GLOBALS['sender_email'], $client_name, $client_email, $client_phone, $test_details);	
+	}	
 }
 
 if ($_SESSION['id']==md5($_COOKIE['PHPSESSID'].$_SESSION['login']))

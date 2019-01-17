@@ -1,0 +1,572 @@
+html, body,
+body>div
+{
+	margin: 0;
+	width: 100%;
+}
+body
+{
+	font-size: 14px;
+	font-family: 'Montserrat Alternates', sans-serif;
+	font-weight: 600;
+}
+strong
+{
+	font-weight: 900;
+	font-size: 20px;
+}
+.container
+{
+	max-width: 980px;
+	margin: 0 auto;	
+}
+
+.nav, #projects, #reviews
+{
+	background: #4f96f2; 
+}
+.nav .container ul
+{
+	list-style-type: none;
+	margin: 0;
+	text-align: center;
+	font-family: 'Montserrat Alternates', sans-serif;
+	font-weight: 900;
+}
+.logo
+{
+	display: block;
+	float: left;
+}
+.padding-top
+{
+	padding-top: 76px;
+}
+.is-fixed
+{
+	position: fixed;
+	top: 0;
+	width: 100%;
+	z-index: 10;
+}
+h3
+{
+	text-align: center;
+	font-family: 'Montserrat Alternates', sans-serif;
+	font-weight: 900;
+	color: #ffff;
+	font-size: 45px;
+	padding: 70px 0;
+	margin: 0;
+}
+.nav .container a span
+{
+	color: #ffff;	
+}
+.nav .container li
+{
+	display: inline-block;
+}
+.nav .container li a
+{
+	padding: 25px;
+	display: block;
+	text-decoration: none;
+}
+.nav .container .logo-list li
+{
+	display: block;
+	text-align: left;
+}
+.logo-list
+{	
+	color: #ffff;
+	padding: 10px 0 10px 80px;
+	display: inline-block;
+	position: relative;
+}
+
+.logo-list::before
+{
+	content: '';
+	position: absolute;
+	top: 0;
+	left: -4px;
+	width: 85px;
+	height: 76px;
+	background: url('img/logo.png');
+}
+
+.null-width
+{
+  width: 0;
+}
+.nav a i
+{	
+	height: 7px;
+	transition: 2s ease-out;
+	background: #ffff;
+	display: flex;
+}
+
+.nav a:hover i
+{
+	width: 100%;
+}
+#company,
+#company h3,
+#services,
+#services h3
+{
+	color:  #4f96f2;
+}
+
+#company h3,
+.drop-down-element
+{
+  animation-name: dropDown;
+  animation-duration: 2s;
+  position: relative; 
+}
+
+@keyframes dropDown 
+{
+	0% { top: -500px; transform: rotate(0deg);}
+	70% {top: 10px;  transform: rotate(0deg);} 
+	80%	{transform: rotate(20deg);}
+	85%	{transform: rotate(-40deg);}
+	90%	{transform: rotate(40deg);}
+	95%	{transform: rotate(-20deg);}
+	100% {transform: rotate(0deg);}
+}
+
+i.main-menu,
+i.close-menu
+{
+	cursor: pointer;
+	font-size: 45px;
+	color: #ffff;
+	display: none;
+}
+
+i.close-menu
+{
+	z-index: 12;
+}
+#services
+{
+	background: url(img/shema-house.jpg);	
+}
+.text
+{
+	text-indent: 20px;
+	line-height: 25px;
+}
+.project
+{
+	width: 47%;
+	float: left;
+	padding: 10px;
+	transition: 3s;
+	min-height: 350px;
+}
+.project:hover
+{
+	cursor: pointer;
+	transform: scale(1.2);	
+	background: #6fa1f2;
+}
+.project-pic
+{
+	width: 70%;
+	height: 200px;
+	margin: 0 auto;
+	overflow: hidden;
+	text-align: center;	
+}
+.project-pic img
+{
+	max-width: 300px;
+}
+.project-disc p
+{
+  width: 70%;
+  text-align: center;
+  margin: 0 auto;
+}
+#services .container
+{
+	background: rgb(45,45,45,.57);
+}
+#services h3
+{
+	color: #ffff;
+}
+#services h4
+{
+	position: relative;
+	text-align: center;
+	margin: 10px 0;
+	left: -4000px;
+}
+
+#services p
+{
+	opacity: 0;
+	font-weight: 600;
+	color: #ffff;
+	padding-left: 15px;
+}
+
+.move-right
+{
+	animation-name: moveRight;
+  	animation-duration: 2s;
+  	position: relative; 
+}
+
+@keyframes moveRight
+{
+   0% { left: -2000px;}
+   100% {left: 0;}
+}
+
+#services h4::after
+{
+	content: '';
+	display: block;
+	max-width: 930px;
+	height: 50px;
+	background: url(img/pencil.png);
+}
+#services h4 span
+{
+	position: absolute;
+	top: 16px;
+	left: 25%;
+	font-weight: 500;
+	font-size: 20px;
+	color: #ffff;
+	text-shadow: 3px 1px 0px rgb(193, 185, 185)
+}
+
+#reviews
+{
+	padding-bottom: 350px;
+}
+
+.review .img-box
+{
+  overflow: hidden;
+  max-width: 300px;
+  border-radius: 50%;
+}
+
+.review .img-box,
+.review p
+{
+	float: left;
+}
+
+.review img
+{
+	max-width: 200px;
+}
+
+#feedback
+{
+	position: relative;	
+	height: 750px;
+}
+
+#feedback .container
+{
+	background: rgb(0,0,0,0.7);
+	position: absolute;
+	top: 150px;
+	left: 25%;
+	width: 100%;
+}
+
+#feedback input,
+#feedback textarea
+{
+	display: block;
+	margin: 25px auto;
+	width: 50%;
+	outline: 0;
+	border: none;
+	border-bottom: 3px dashed #4f96f2;
+}
+#feedback input
+{
+	height: 40px;
+	font-size: 40px;
+	border: none;
+	border-bottom: 3px dashed #4f96f2;
+	color: #040473;
+	outline: 0;
+}
+
+#feedback input:focus,
+#feedback textarea:focus
+{	
+	border-bottom: 5px dashed #4f96f2;
+	background: yellow;
+}
+
+#feedback textarea
+{
+	height: 100px;
+	font-size: 20px;
+}
+
+.bg-map
+{
+	width: 100%;
+	height: 750px;	
+}
+
+form .button-box
+{
+	text-align: center;
+}
+
+form .button-box button
+{
+	border: 3px dashed #4f96f2;
+	background: #ffff;
+	color: #4f96f2;
+	font-size: 20px;
+	padding: 20px 70px;	
+	font-weight: 600;
+	font-family: 'Montserrat Alternates', sans-serif;
+}
+
+form .button-box button:focus
+{
+	outline: 0;
+}
+form .button-box button:hover
+{
+	cursor: pointer;
+	background: #4f96f2;
+	border: 3px dashed #ffff;
+	color: #ffff;
+}
+ 
+.footer
+{
+	background: #4f96f2; 
+	overflow: auto;
+}
+.footer h4,
+.fb
+{
+	display: inline-block;
+}
+.fb
+{
+	width: 22px;
+	height: 32px;	
+}
+.fb::before
+{
+	display: block;
+	content: '';
+	width: 65px;
+	height: 50px;
+	background: url('img/fb-icon.png');
+}
+
+iframe
+{
+	width: 50%;
+}
+
+.clearfix
+{
+	height: 1px;
+	clear: both;
+}
+
+/* SMTP-settings page*/
+	input, select, div.password-box,
+	textarea
+	{
+		width: 30%;
+		margin: 8px auto;
+		display: block;
+	}
+	.smtp-set,
+	.smtp-set.fa {
+		display: none;
+	}
+
+	.use-smtp:checked ~ .smtp-set
+	{
+		display: block;
+	}
+
+	.secret
+	{
+		width: 100%;
+	}
+	button
+	{
+		text-align: center;
+	}
+	.password-box
+	{		
+		position: relative;
+	}
+	.password-box .secret
+	{
+		text-indent: 30px;
+	}	
+	.password-box::before
+	{
+		content: '\f06e';
+		display: block;
+		cursor: pointer;
+		position: absolute;
+		top: 3px;
+		left: 2px;	
+	}
+	.button-box
+	{
+		text-align: center;
+	}
+	.servers-list
+	{
+		text-align: center;
+	}
+	.servers-list select
+	{
+		display: inline;	
+		width: 25%;	
+	}
+
+@media screen  and (max-width: 787px)
+{
+/*	body
+	{
+		overflow-y: hidden;
+	}
+*/
+	.nav
+	{
+		overflow: auto;	
+	}
+
+	.logo-list
+	{
+		padding: 10px 0 0 80px;
+	}
+
+	.curtain
+	{
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: rgb(79, 150, 242, .87);
+		display: none;
+	}
+	.nav .menu-list
+	{
+		display: none;
+		position: absolute;
+		top: 30px;
+		left: 0;
+		font-size: 30px;
+		padding: 0;
+		text-align: center;
+		width: 100%;
+	}
+	i.main-menu,
+	i.close-menu
+	{
+		float: right;
+	}
+	i.main-menu
+	{
+		display: block;
+	}
+	i.close-menu
+	{
+		display: none;
+		position: absolute;
+		top: 0;
+		right: 10px;
+	}
+	.nav .menu-list li
+	{
+		display: block;
+	}
+	.project
+	{
+		width: 93%;
+	}
+	.project:hover
+	{
+		transform: scale(1);	
+	}
+	.container
+	{
+		overflow: auto;
+		padding: 5px 20px;		
+		max-width: 100%;
+	}
+
+	.review p
+	{
+		width: 100%;
+		text-align: left;
+	}
+	.review .img-box
+	{
+		display: inline-block;
+		float: none;
+	}
+	.review
+	{
+		text-align: center;
+	}
+	#services h4 span 
+	{
+		position: unset;
+	}
+	#services h4::after
+	{
+		background: url('');
+	}
+	h3
+	{
+		padding: 0;
+	}
+
+	#feedback input
+	{
+		width: 90%;
+		font-size: 27px;
+	}
+	#feedback textarea
+	{
+		width: 90%;
+	}
+	form .button-box button
+	{
+		margin: 10px 0;
+	}
+	.fb::before
+	{
+		position: absolute;
+		right: 7px;
+	}
+	iframe
+	{
+		width: 100%;
+	}
+}
